@@ -454,8 +454,8 @@ async fn real_time(
         let res = trade_mapper::TradeMapper::insert_trade(Vec::from(trade_histories.clone()));
         println!("插入历史交易数据是否成功{}", res);
         
-        // let po_res = trade_mapper::PositionMapper::insert_position(Vec::from(positions.clone()));
-        // print!("输出的仓位数据信息{}", po_res);
+        let po_res = trade_mapper::PositionMapper::insert_position(Vec::from(positions.clone()));
+        print!("输出的仓位数据信息{}", po_res);
 
         // let net_worth_res = trade_mapper::NetWorkMapper::insert_net_worth(Vec::from(net_worth_histories.clone()));
         // print!("输出的净值数据信息{}", net_worth_res);
