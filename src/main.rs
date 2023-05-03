@@ -178,7 +178,7 @@ async fn real_time(
                             continue;
                         } else {
                             info!("i的值: {}", i);
-                            if i == value.len() {
+                            if i == value.len() || i > value.len() {
                                 continue;
                             }
                             let this_trade_id = value[i]
