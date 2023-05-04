@@ -90,6 +90,7 @@ impl BinanceFuturesApi {
             .await;
 
         let res_data = self.client.check_response_data(response);
+        
 
         match res_data {
             Some(data) => {

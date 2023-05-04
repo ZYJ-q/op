@@ -172,12 +172,12 @@ async fn real_time(
             info!("{:?}: {}",(&symbol), last_trade_id);
             if let Some(data) = binance_futures_api.trade_hiostory(&symbol).await {
                 let v: Value = serde_json::from_str(&data).unwrap();
+                println!("历史成交记录{:?}", v);
                 match v.as_array() {
                     Some(value) => {
                         if value.len() == 0 {
                             continue;
                         } else {
-                            info!("i的值: {}", i);
                             if i == value.len() || i > value.len() {
                                 continue;
                             }
@@ -330,7 +330,7 @@ async fn real_time(
                                     }
                                 }
                                 info!("running 的值: {}", running);
-                                if running {
+                                if !running {
                                     let sender = "订单成交";
                                     let strs: Vec<&str> = trade_object.get("tra_symbol").unwrap().as_str().unwrap().split(symbol_v.as_str().unwrap()).collect();
                                     let mut content = String::from(&time);
@@ -341,7 +341,7 @@ async fn real_time(
                                     content.push_str(&format!("{} for ", symbol_v.as_str().unwrap()));
                                     content.push_str(trade_object.get("price").unwrap().as_str().unwrap());
                                     content.push_str(&format!("{} each", strs[1]));
-                                    // wx_robot.send_text(sender, &content).await;
+                                    wx_robot.send_text(sender, &content).await;
                                     i += 1
                                 }
                                 trade_histories.push_back(Value::from(trade_object));
