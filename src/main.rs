@@ -172,12 +172,13 @@ async fn real_time(
             info!("{:?}: {}",(&symbol), last_trade_id);
             if let Some(data) = binance_futures_api.trade_hiostory(&symbol).await {
                 let v: Value = serde_json::from_str(&data).unwrap();
-                println!("历史成交记录{:?}", v);
                 match v.as_array() {
                     Some(value) => {
                         if value.len() == 0 {
                             continue;
                         } else {
+
+                            
                             if i == value.len() || i > value.len() {
                                 continue;
                             }

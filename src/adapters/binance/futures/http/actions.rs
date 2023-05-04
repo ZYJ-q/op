@@ -90,7 +90,9 @@ impl BinanceFuturesApi {
             .await;
 
         let res_data = self.client.check_response_data(response);
-        
+
+        println!("历史数据{:?}", res_data);
+
 
         match res_data {
             Some(data) => {
