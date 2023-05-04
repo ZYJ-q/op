@@ -91,7 +91,7 @@ impl BinanceFuturesApi {
 
         let res_data = self.client.check_response_data(response);
 
-        println!("历史数据{:?}", res_data);
+        println!("历史数据:{:?}", res_data);
 
 
         match res_data {

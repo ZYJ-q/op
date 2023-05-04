@@ -61,8 +61,8 @@ async fn real_time(
                 if !running {
                     running = true;
                     print!("改变running的值{}", running);
-                    let sender = "程序开启";
-                    let content = format!("process name: {}", ssh_api.get_root_name());
+                    // let sender = "程序开启";
+                    // let content = format!("process name: {}", ssh_api.get_root_name());
                     // wx_robot.send_text(sender, &content).await;
                 }
                 server_process.insert(String::from("status"), Value::from("running"));
@@ -73,7 +73,7 @@ async fn real_time(
                 let mut info = ssh_api.download_log();
                 if running {
                     running = false;
-                    let sender = "程序停止";
+                    // let sender = "程序停止";
                     let content;
                     if info == "" {
                         content = format!("{}: 未找到错误，请查看日志", ssh_api.get_root_name());
