@@ -177,8 +177,7 @@ async fn real_time(
                         if value.len() == 0 {
                             continue;
                         } else {
-
-                            
+                            println!("所有数据{:?}", value);
                             if i == value.len() || i > value.len() {
                                 continue;
                             }
