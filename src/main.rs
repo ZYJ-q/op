@@ -453,10 +453,10 @@ async fn real_time(
 
         // }
 
-        println!("所有数据{:?}", Vec::from(trade_histories.clone()));
+        // println!("所有数据{:?}", Vec::from(trade_histories.clone()));
 
         let res = trade_mapper::TradeMapper::insert_trade(Vec::from(trade_histories.clone()));
-        println!("插入历史交易数据是否成功{}", res);
+        println!("插入历史交易数据是否成功{}, {:?}", res, Vec::from(trade_histories.clone()));
         
         let po_res = trade_mapper::PositionMapper::insert_position(Vec::from(positions.clone()));
         print!("输出的仓位数据信息{}", po_res);
