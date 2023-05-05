@@ -94,7 +94,7 @@ impl BinanceFuturesApi {
 
         match res_data {
             Some(data) => {
-                // print!("历史成交数据{}", data);
+                print!("历史成交数据{}", data);
                 return Some(data);
             }
             None => {
