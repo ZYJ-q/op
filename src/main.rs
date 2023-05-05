@@ -365,7 +365,7 @@ async fn real_time(
             Value::from(Vec::from(trade_histories.clone())),
         );
 
-        println!("所有数据{:?}", trade_histories.clone());
+        println!("所有数据{:?}", Vec::from(trade_histories.clone()));
         
 
         // 仓位
