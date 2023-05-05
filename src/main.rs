@@ -365,7 +365,7 @@ async fn real_time(
             Value::from(Vec::from(trade_histories.clone())),
         );
 
-        println!("所有数据{:?}", Vec::from(trade_histories.clone()));
+        
         
 
         // 仓位
@@ -452,6 +452,8 @@ async fn real_time(
         //     println!("lzq账户{:?}", Vec::from(net_worth_histories.clone())); 
 
         // }
+
+        println!("所有数据{:?}", Vec::from(trade_histories.clone()));
 
         let res = trade_mapper::TradeMapper::insert_trade(Vec::from(trade_histories.clone()));
         println!("插入历史交易数据是否成功{}", res);
