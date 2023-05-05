@@ -177,7 +177,7 @@ async fn real_time(
                         if value.len() == 0 {
                             continue;
                         } else {
-                            println!("所有数据{:?}", value);
+                            
                             if i == value.len() || i > value.len() {
                                 continue;
                             }
@@ -364,6 +364,8 @@ async fn real_time(
             String::from("trades"),
             Value::from(Vec::from(trade_histories.clone())),
         );
+
+        println!("所有数据{:?}", trade_histories.clone());
         
 
         // 仓位
