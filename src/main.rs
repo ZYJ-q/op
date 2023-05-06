@@ -512,13 +512,13 @@ async fn main() {
 
         
         info!("created http client");
-        real_time(binance_futures_api, symbols, ssh_api, wx_robot, 500.0).await;
+        if &time[11..19] == "10:11:00" {
+            real_time(binance_futures_api, symbols, ssh_api, wx_robot, 500.0).await;
+        }
     });
 
     // 开始任务
     info!("alarm begin(binance account)");
-    if &time[11..19] == "18:06:02" {
-        real_time_handle.await.unwrap();
-    }
+    real_time_handle.await.unwrap();
     info!("alarm done");
 }
