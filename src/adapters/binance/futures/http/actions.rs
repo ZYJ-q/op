@@ -58,7 +58,11 @@ impl BinanceFuturesApi {
             None => {}
         }
         let now_time = Utc::now().timestamp_millis();
+        
         params.insert(String::from("timestamp"), Value::from(now_time));
+
+        
+
 
         let response = self
             .client

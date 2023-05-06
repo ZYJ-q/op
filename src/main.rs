@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 use std::{collections::HashMap, fs, time::Duration};
-
+use chrono::Local;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use log::{debug, info, warn};
 use serde_json::{Map, Value};
@@ -22,8 +22,11 @@ async fn real_time(
     //rece: &mut Receiver<&str>){
     info!("get ready for real time loop");
     let mut running = false;
+    let mut week_npl = -0.82056;
+    let mut day_pnl = 0.0;
 
-    let mut i = 0;
+    // let mut i = 0;
+    // let mut end = 6;
 
     // 每个品种的上一个trade_id
     let mut last_trade_ids: HashMap<String, u64> = HashMap::new();
@@ -34,10 +37,10 @@ async fn real_time(
     }
 
     // 交易历史
-    let mut trade_histories: VecDeque<Value> = VecDeque::new();
+    let trade_histories: VecDeque<Value> = VecDeque::new();
 
     // 净值数据
-    let mut net_worth_histories: VecDeque<Value> = VecDeque::new();
+    // let mut net_worth_histories: VecDeque<Value> = VecDeque::new();
 
     info!("begin real time loop");
     // 监控循环
@@ -96,7 +99,8 @@ async fn real_time(
 
         // 账户余额
         info!("account balance");
-    let mut net_worth: f64 = f64::INFINITY;
+    let mut total_equity = 0.00;
+    // let mut net_worth: f64 = f64::INFINITY;
     let mut new_account_object: Map<String, Value> = Map::new();
     let mut account_object: Map<String, Value> = Map::new();
     if let Some(data) = binance_futures_api.account(None).await {
@@ -119,9 +123,10 @@ async fn real_time(
             .unwrap()
             .parse()
             .unwrap();
-        let notional_total = wallet_total + pnl_total; // 权益 = 余额 + 未实现盈亏
+        let notional_total = wallet_total + pnl_total + week_npl; // 权益 = 余额 + 未实现盈亏
         let leverage_total = wallet_total / notional_total; // 杠杆率 = 余额 / 权益
-        let total_equity = wallet_total + pnl_total;
+        // let total_equity = wallet_total + pnl_total;
+        total_equity += notional_total;
         let margin_balance: f64 = v
             .as_object()
             .unwrap()
@@ -131,14 +136,14 @@ async fn real_time(
             .unwrap()
             .parse()
             .unwrap();
-        new_account_object.insert(
-            String::from("total_equity"),
-            Value::from(total_equity.to_string()),
-        );
-        new_account_object.insert(
-            String::from("time"), 
-            Value::from(date),
-        );
+        // new_account_object.insert(
+        //     String::from("total_equity"),
+        //     Value::from(total_equity.to_string()),
+        // );
+        // new_account_object.insert(
+        //     String::from("time"), 
+        //     Value::from(date),
+        // );
         account_object.insert(
             String::from("wallet"),
             Value::from(wallet_total.to_string()),
@@ -155,17 +160,45 @@ async fn real_time(
             String::from("margin"),
             Value::from(margin_balance.to_string()),
         );
-        net_worth = notional_total/ori_fund;
-        net_worth_histories.push_back(Value::from(new_account_object));
+        // net_worth = notional_total/ori_fund;
+        // net_worth_histories.push_back(Value::from(new_account_object));
     }
     map.insert(String::from("account"), Value::from(account_object));
+
+
+    // let origins = ori_fund + ori_fund;
+
+// println!("输出权益:{}, origins:{}", total_equity, ori_fund);
+
+let  net_worth = total_equity/ori_fund;
+
+// println!("净值:{}", net_worth);
+new_account_object.insert(
+    String::from("net_worth"),
+    Value::from(net_worth.to_string()),
+);
+
+new_account_object.insert(
+    String::from("time"), 
+    Value::from(date),
+);
+
+// net_worth_histories.push_back(Value::from(new_account_object));
+
+
+let dt = Local::now().timestamp_millis();
+let last_day = dt - 1000*60*60*24;
+
+let time = format!("{}", Local::now().format("%Y/%m/%d %H:%M:%S"));
+
+println!("时间{}", time);
 
         
 
         // 成交历史(更新所有)
         info!("trade history");
         for symbol_v in symbols {
-            let mut trade_object: Map<String, Value> = Map::new();
+            // let mut trade_object: Map<String, Value> = Map::new();
             let symbol = symbol_v.as_str().unwrap();
             let symbol = format!("{}USDT", symbol);
             let last_trade_id = last_trade_ids.get(&symbol).unwrap().clone();
@@ -178,180 +211,73 @@ async fn real_time(
                             continue;
                         } else {
                             
-                            if i == value.len() || i > value.len() {
-                                continue;
+                            for i in 0..value.len() {
+                                // let week_qty = value[i]
+                                //    .as_object()
+                                //    .unwrap()
+                                //    .get("qty")
+                                //    .unwrap()
+                                //    .as_str()
+                                //    .unwrap();
+                                // // let we_qty: f64 = week_qty.parse().unwrap();
+                                // // week_transaction_qty += we_qty;
+                                // let week_price = value[i]
+                                //    .as_object()
+                                //    .unwrap()
+                                //    .get("price")
+                                //    .unwrap()
+                                //    .as_str()
+                                //    .unwrap();
+                                // let we_price: f64 = week_price.parse().unwrap();
+                                // week_transaction_price += we_price;
+                                // let week_unrealied_pnl = value[i]
+                                //    .as_object()
+                                //    .unwrap()
+                                //    .get("realizedPnl")
+                                //    .unwrap()
+                                //    .as_str()
+                                //    .unwrap();
+                                // let we_pnl: f64 = week_unrealied_pnl.parse().unwrap();
+                                // week_pnl += we_pnl;
+                                let this_time = value[i]
+                                   .as_object()
+                                   .unwrap()
+                                   .get("time")
+                                   .unwrap()
+                                   .as_i64()
+                                   .unwrap();
+                                if last_day < this_time {
+                                    // let quote_qty = value[i]
+                                    //   .as_object()
+                                    //   .unwrap()
+                                    //   .get("qty")
+                                    //   .unwrap()
+                                    //   .as_str()
+                                    //   .unwrap();
+                                    // // let qty: f64 = quote_qty.parse().unwrap();
+                                    // // day_transaction_qty += qty;
+                                    // let price = value[i]
+                                    //     .as_object()
+                                    //     .unwrap()
+                                    //     .get("price")
+                                    //     .unwrap()
+                                    //     .as_str()
+                                    //     .unwrap();
+                                    // let pri: f64= price.parse().unwrap();
+                                    // day_transaction_price += pri;
+                                    let realized_pnl = value[i]
+                                       .as_object()
+                                       .unwrap()
+                                       .get("realizedPnl")
+                                       .unwrap()
+                                       .as_str()
+                                       .unwrap();
+                                    let pnl: f64 = realized_pnl.parse().unwrap();
+                                    week_npl += pnl;
+                                    day_pnl += pnl;
+                                }
                             }
-                            let this_trade_id = value[i]
-                                .as_object()
-                                .unwrap()
-                                .get("orderId")
-                                .unwrap()
-                                .as_u64()
-                                .unwrap();
-                            // info!("this_trade_id: {}", this_trade_id);
-                            if last_trade_id != this_trade_id {
-                                info!("this_trade_id: {} ,{}", this_trade_id, last_trade_id);
-                                last_trade_ids.insert(String::from(&symbol), this_trade_id);
-                                trade_object.insert(String::from("tra_symbol"), Value::from(symbol));
-                                trade_object.insert(
-                                    String::from("th_id"),
-                                    Value::from(
-                                        value[i]
-                                            .as_object()
-                                            .unwrap()
-                                            .get("id")
-                                            .unwrap()
-                                            .as_u64()
-                                            .unwrap(),
-                                    ),
-                                );
-                                trade_object
-                                    .insert(String::from("tra_order_id"), Value::from(this_trade_id));
-                                // trade_object
-                                //     .insert(String::from("tra_id"), Value::from(1));
-                                trade_object.insert(
-                                    String::from("side"),
-                                    Value::from(
-                                        value[i]
-                                            .as_object()
-                                            .unwrap()
-                                            .get("side")
-                                            .unwrap()
-                                            .as_str()
-                                            .unwrap(),
-                                    ),
-                                );
-                                trade_object.insert(
-                                    String::from("price"),
-                                    Value::from(
-                                        value[i]
-                                            .as_object()
-                                            .unwrap()
-                                            .get("price")
-                                            .unwrap()
-                                            .as_str()
-                                            .unwrap(),
-                                    ),
-                                );
-                                trade_object.insert(
-                                    String::from("qty"),
-                                    Value::from(
-                                        value[i]
-                                            .as_object()
-                                            .unwrap()
-                                            .get("qty")
-                                            .unwrap()
-                                            .as_str()
-                                            .unwrap(),
-                                    ),
-                                );
-                                trade_object.insert(
-                                    String::from("realized_pnl"),
-                                    Value::from(
-                                        value[i]
-                                            .as_object()
-                                            .unwrap()
-                                            .get("realizedPnl")
-                                            .unwrap()
-                                            .as_str()
-                                            .unwrap(),
-                                    ),
-                                );
-                                trade_object.insert(
-                                    String::from("quote_qty"),
-                                    Value::from(
-                                        value[i]
-                                            .as_object()
-                                            .unwrap()
-                                            .get("quoteQty")
-                                            .unwrap()
-                                            .as_str()
-                                            .unwrap(),
-                                    ),
-                                );
-                                trade_object.insert(
-                                    String::from("position_side"),
-                                    Value::from(
-                                        value[i]
-                                            .as_object()
-                                            .unwrap()
-                                            .get("positionSide")
-                                            .unwrap()
-                                            .as_str()
-                                            .unwrap(),
-                                    ),
-                                );
-                                trade_object.insert(
-                                    String::from("tra_commision"),
-                                    Value::from(
-                                        value[i]
-                                            .as_object()
-                                            .unwrap()
-                                            .get("commission")
-                                            .unwrap()
-                                            .as_str()
-                                            .unwrap(),
-                                    ),
-                                );
-                                let millis = value[i]
-                                    .as_object()
-                                    .unwrap()
-                                    .get("time")
-                                    .unwrap()
-                                    .as_i64()
-                                    .unwrap();
-                                let datetime: DateTime<Utc> = DateTime::from_utc(
-                                    NaiveDateTime::from_timestamp_millis(millis).unwrap(),
-                                    Utc,
-                                );
-                                // info!("datetime: {}", datetime);
-                                let time = format!("{}", datetime.format("%Y-%m-%d %H:%M:%S"));
-                                trade_object.insert(String::from("tra_time"), Value::from(time.clone()));
-                                // match value[i].as_object().unwrap().get("buyer") {
-                                //     Some(buyer) => {
-                                //         trade_object.insert(
-                                //             String::from("is_buyer"),
-                                //             Value::Bool(buyer.as_bool().unwrap()),
-                                //         );
-                                //     }
-                                //     None => {
-                                //         trade_object.insert(String::from("is_buyer"), Value::Null);
-                                //     }
-                                // }
-                                match value[i].as_object().unwrap().get("maker") {
-                                    Some(maker) => {
-                                        trade_object.insert(
-                                            String::from("is_maker"),
-                                            Value::Bool(maker.as_bool().unwrap()),
-                                        );
-                                    }
-                                    None => {
-                                        trade_object.insert(String::from("is_maker"), Value::Null);
-                                    }
-                                }
-                                info!("running 的值: {}", running);
-                                if !running {
-                                    let sender = "订单成交";
-                                    let strs: Vec<&str> = trade_object.get("tra_symbol").unwrap().as_str().unwrap().split(symbol_v.as_str().unwrap()).collect();
-                                    let mut content = String::from(&time);
-                                    content.push_str("");
-                                    content.push_str(trade_object.get("side").unwrap().as_str().unwrap());
-                                    content.push_str("");
-                                    content.push_str(trade_object.get("qty").unwrap().as_str().unwrap());
-                                    content.push_str(&format!("{} for ", symbol_v.as_str().unwrap()));
-                                    content.push_str(trade_object.get("price").unwrap().as_str().unwrap());
-                                    content.push_str(&format!("{} each", strs[1]));
-                                    wx_robot.send_text(sender, &content).await;
-                                    i += 1
-                                }
-                                trade_histories.push_back(Value::from(trade_object));
-                                if trade_histories.len() > 1000 {
-                                    trade_histories.pop_front();
-                                }
-                            // 如果last_trade_id = orderId
-                            } else {
-                                continue;
-                            }
+                            
                         }
                     }
                     None => {
@@ -433,6 +359,14 @@ async fn real_time(
         path.pop();
         path.pop();
 
+        println!("净值:{}, 权益:{}, 盈亏:{:.2}", net_worth, total_equity, day_pnl);
+
+        if running {
+            let sender = "数据概况";
+let content = format!("当前权益: {}, 当前净值: {}, 24小时内盈亏: {:.2}", total_equity, net_worth, day_pnl);
+wx_robot.send_text(sender, &content).await;
+        }
+
         // 输出日志
         debug!("writing {}", json_file);
 
@@ -455,18 +389,18 @@ async fn real_time(
 
         // println!("所有数据{:?}", Vec::from(trade_histories.clone()));
 
-        let res = trade_mapper::TradeMapper::insert_trade(Vec::from(trade_histories.clone()));
-        println!("插入历史交易数据是否成功{}, {:?}", res, Vec::from(trade_histories.clone()));
+        // let res = trade_mapper::TradeMapper::insert_trade(Vec::from(trade_histories.clone()));
+        // println!("插入历史交易数据是否成功{}, {:?}", res, Vec::from(trade_histories.clone()));
         
-        let po_res = trade_mapper::PositionMapper::insert_position(Vec::from(positions.clone()));
-        print!("输出的仓位数据信息{}", po_res);
+        // let po_res = trade_mapper::PositionMapper::insert_position(Vec::from(positions.clone()));
+        // print!("输出的仓位数据信息{}", po_res);
 
         // let net_worth_res = trade_mapper::NetWorkMapper::insert_net_worth(Vec::from(net_worth_histories.clone()));
         // print!("输出的净值数据信息{}", net_worth_res);
 
         // 等待下次执行
-        info!("waiting for next real time task...({})", 1000 * 10);
-        tokio::time::delay_for(Duration::from_millis(1000 * 10)).await;
+        info!("waiting for next real time task...({})", 90000 * 10);
+        tokio::time::delay_for(Duration::from_millis(90000 * 10)).await;
     }
 }
 
