@@ -166,11 +166,11 @@ async fn real_time(
     map.insert(String::from("account"), Value::from(account_object));
 
 
-    // let origins = ori_fund + ori_fund;
+    let origins = ori_fund + ori_fund;
 
 // println!("输出权益:{}, origins:{}", total_equity, ori_fund);
 
-let  net_worth = total_equity/ori_fund;
+let  net_worth = total_equity/origins;
 
 // println!("净值:{}", net_worth);
 new_account_object.insert(
@@ -191,7 +191,7 @@ let last_day = dt - 1000*60*60*24;
 
 let time = format!("{}", Local::now().format("%Y/%m/%d %H:%M:%S"));
 
-println!("时间{}", time);
+println!("时间{}", &time[11..19]);
 
         
 
