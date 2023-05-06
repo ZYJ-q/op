@@ -411,6 +411,7 @@ async fn main() {
     log4rs::init_file("./log4rs.yaml", Default::default()).unwrap();
 
     init();
+    let time = format!("{}", Local::now().format("%Y/%m/%d %H:%M:%S"));
 
     // 测试用api
     // let api_key="JwYo1CffkOLqmv2sC3Qhe2Qu5GgzbeLVw2BxWB5HgK6tnmc8yGfkzLuDImBgDkXm";
@@ -516,6 +517,8 @@ async fn main() {
 
     // 开始任务
     info!("alarm begin(binance account)");
-    real_time_handle.await.unwrap();
+    if &time[11..19] == "18:06:02" {
+        real_time_handle.await.unwrap();
+    }
     info!("alarm done");
 }
